@@ -1,5 +1,6 @@
 
 import streamlit as st
+import streamlit.components.v1 as components
 import ollama
 import json
 import uuid
@@ -34,28 +35,28 @@ DEFAULT_SYSTEM_PROMPT = """
 You are a helpful, intelligent and beginner-friendly AI assistant.
 
 GENERAL INSTRUCTIONS:
-1. Answer the user's question directly and accurately.
+1. Answer questions directly and accurately.
 2. Use simple, clear and natural language.
 3. Keep answers concise unless more detail is requested.
-4. Avoid unnecessary introductions and repeated information.
+4. Avoid unnecessary introductions and repetition.
 5. Maintain context from the current conversation.
 6. Never invent facts. Admit when you are unsure.
-7. Use headings and bullet points when they improve readability.
+7. Use headings and bullet points when useful.
 
 PROGRAMMING INSTRUCTIONS:
-1. Provide complete, executable code when the user requests a program.
-2. Always use proper Markdown fenced code blocks.
-3. Specify the correct language after the opening code fence.
+1. Provide complete, executable code when requested.
+2. Always use properly formatted Markdown code blocks.
+3. Specify the correct programming language.
 4. Never put an entire program inside inline code formatting.
 5. Preserve correct indentation and line breaks.
 6. Include necessary imports and example usage.
-7. Explain the code in beginner-friendly language when useful.
-8. Include expected output when it helps understanding.
+7. Explain code in beginner-friendly language when useful.
+8. Include expected output when appropriate.
 9. Avoid incomplete code and unnecessary placeholders.
-10. For debugging, explain the issue and provide the corrected code.
+10. For debugging, explain the issue and provide corrected code.
 
 FORMATTING:
-- Use **bold** for important terms.
+- Use bold for important terms.
 - Use headings for longer explanations.
 - Use numbered steps for procedures.
 - Use fenced code blocks for programming examples.
@@ -66,7 +67,7 @@ Be friendly, accurate and professional.
 
 
 # =========================================================
-# 3. HELPER FUNCTIONS
+# 3. CHAT DATA FUNCTIONS
 # =========================================================
 
 def get_current_time():
@@ -74,6 +75,7 @@ def get_current_time():
 
 
 def create_new_chat():
+
     chat_id = uuid.uuid4().hex[:10]
 
     return {
@@ -85,37 +87,20 @@ def create_new_chat():
     }
 
 
-def save_chat_data():
-    """Save all conversations to a local JSON file."""
-
-    try:
-        data = {
-            "chats": st.session_state.chats,
-            "active_chat_id": st.session_state.active_chat_id
-        }
-
-        CHAT_FILE.write_text(
-            json.dumps(data, indent=4, ensure_ascii=False),
-            encoding="utf-8"
-        )
-
-    except OSError as error:
-        st.error(f"Unable to save chat history: {error}")
-
-
 def load_chat_data():
-    """Load conversations from local storage."""
 
     if not CHAT_FILE.exists():
         return {}, None
 
     try:
+
         data = json.loads(
             CHAT_FILE.read_text(encoding="utf-8")
         )
 
-        # Support the earlier version's flat message history.
+        # Compatibility with previous flat chat history
         if isinstance(data, list):
+
             chat = create_new_chat()
 
             chat["messages"] = [
@@ -126,6 +111,7 @@ def load_chat_data():
             ]
 
             if chat["messages"]:
+
                 first_message = next(
                     (
                         message["content"]
@@ -143,9 +129,11 @@ def load_chat_data():
             return {}, None
 
         raw_chats = data.get("chats", {})
+
         chats = {}
 
         if isinstance(raw_chats, dict):
+
             for chat_id, chat in raw_chats.items():
 
                 if not isinstance(chat, dict):
@@ -183,20 +171,42 @@ def load_chat_data():
         return chats, active_id
 
     except (json.JSONDecodeError, OSError, TypeError):
+
         return {}, None
 
 
+def save_chat_data():
+
+    try:
+
+        data = {
+            "chats": st.session_state.chats,
+            "active_chat_id": st.session_state.active_chat_id
+        }
+
+        CHAT_FILE.write_text(
+            json.dumps(data, indent=4, ensure_ascii=False),
+            encoding="utf-8"
+        )
+
+    except OSError as error:
+
+        st.error(f"Unable to save conversations: {error}")
+
+
 def get_active_chat():
+
     return st.session_state.chats[
         st.session_state.active_chat_id
     ]
 
 
-def update_chat_title(chat, first_message):
-    """Generate a simple title from the first user message."""
+def update_chat_title(chat, prompt):
 
     if chat["title"] == "New Chat":
-        title = first_message.strip().replace("\n", " ")
+
+        title = prompt.strip().replace("\n", " ")
+
         chat["title"] = (
             title[:40] + "..."
             if len(title) > 40
@@ -205,13 +215,16 @@ def update_chat_title(chat, first_message):
 
 
 def format_chat_as_markdown(chat):
-    """Convert a conversation into a Markdown document."""
 
     content = f"# {chat['title']}\n\n"
 
     for message in chat["messages"]:
 
-        role = "You" if message["role"] == "user" else "Assistant"
+        role = (
+            "You"
+            if message["role"] == "user"
+            else "Assistant"
+        )
 
         content += f"## {role}\n\n"
         content += message["content"] + "\n\n"
@@ -220,13 +233,14 @@ def format_chat_as_markdown(chat):
 
 
 # =========================================================
-# 4. LOAD INSTALLED OLLAMA MODELS
+# 4. OLLAMA MODEL MANAGEMENT
 # =========================================================
 
 @st.cache_data(ttl=30)
 def get_installed_models():
 
     try:
+
         result = ollama.list()
 
         return [
@@ -235,15 +249,17 @@ def get_installed_models():
         ]
 
     except Exception:
+
         return []
 
 
-# =========================================================
-# 5. GENERATE AI RESPONSE
-# =========================================================
-
-def generate_ai_response(messages, model, system_prompt,
-                         temperature, max_tokens):
+def generate_ai_response(
+    messages,
+    model,
+    system_prompt,
+    temperature,
+    max_tokens
+):
 
     request = {
         "model": model,
@@ -264,14 +280,12 @@ def generate_ai_response(messages, model, system_prompt,
         "stream": False
     }
 
-    # Disable Qwen 3 thinking mode to avoid unnecessary
-    # reasoning output in the chat interface.
+    # Disable Qwen 3 thinking mode
     if model.lower().startswith("qwen3"):
         request["think"] = False
 
     response = ollama.chat(**request)
 
-    # Support the Ollama response object.
     answer = response.message.content
 
     if not answer:
@@ -281,7 +295,101 @@ def generate_ai_response(messages, model, system_prompt,
 
 
 # =========================================================
-# 6. INITIALIZE SESSION STATE
+# 5. COPY RESPONSE COMPONENT
+# =========================================================
+
+def copy_button(text, key):
+
+    # JavaScript clipboard button.
+    # Uses a fallback if clipboard API is unavailable.
+
+    escaped_text = json.dumps(text)
+
+    html = f"""
+    <html>
+    <body style="
+        margin:0;
+        padding:0;
+        background:transparent;
+        font-family:Arial,sans-serif;
+    ">
+
+    <button id="copy-{key}" style="
+        border:1px solid var(--unused, #888888);
+        border-radius:8px;
+        padding:6px 12px;
+        background:transparent;
+        color:#888888;
+        font-size:12px;
+        cursor:pointer;
+    ">
+        📋 Copy response
+    </button>
+
+    <script>
+    const copyText = {escaped_text};
+
+    const button = document.getElementById("copy-{key}");
+
+    button.addEventListener("click", async function() {{
+
+        try {{
+
+            if (navigator.clipboard && window.isSecureContext) {{
+
+                await navigator.clipboard.writeText(copyText);
+
+            }} else {{
+
+                const textarea = document.createElement("textarea");
+
+                textarea.value = copyText;
+
+                textarea.style.position = "fixed";
+                textarea.style.opacity = "0";
+
+                document.body.appendChild(textarea);
+
+                textarea.select();
+
+                const success = document.execCommand("copy");
+
+                textarea.remove();
+
+                if (!success) {{
+                    throw new Error("Clipboard unavailable");
+                }}
+            }}
+
+            button.innerText = "✓ Copied!";
+            button.style.color = "#16a34a";
+
+            setTimeout(function() {{
+                button.innerText = "📋 Copy response";
+                button.style.color = "#888888";
+            }}, 1800);
+
+        }} catch (error) {{
+
+            button.innerText = "Copy unavailable";
+
+        }}
+
+    }});
+    </script>
+
+    </body>
+    </html>
+    """
+
+    components.html(
+        html,
+        height=38,
+        scrolling=False
+    )
+
+# =========================================================
+# 6. SESSION STATE INITIALIZATION
 # =========================================================
 
 if "initialized" not in st.session_state:
@@ -295,17 +403,33 @@ if "initialized" not in st.session_state:
 
     st.session_state.chats = chats
     st.session_state.active_chat_id = active_chat_id
-
     st.session_state.selected_model = DEFAULT_MODEL
     st.session_state.temperature = 0.3
     st.session_state.max_tokens = 512
     st.session_state.system_prompt = DEFAULT_SYSTEM_PROMPT
-
+    st.session_state.theme = "Dark"
     st.session_state.initialized = True
 
 
+# Ensure all settings exist, including after app reruns
+
+if "theme" not in st.session_state:
+    st.session_state.theme = "Dark"
+
+if "temperature" not in st.session_state:
+    st.session_state.temperature = 0.3
+
+if "max_tokens" not in st.session_state:
+    st.session_state.max_tokens = 512
+
+if "selected_model" not in st.session_state:
+    st.session_state.selected_model = DEFAULT_MODEL
+
+if "system_prompt" not in st.session_state:
+    st.session_state.system_prompt = DEFAULT_SYSTEM_PROMPT
+
 # =========================================================
-# 7. LOAD MODELS AND VALIDATE SELECTION
+# 7. LOAD MODELS
 # =========================================================
 
 available_models = get_installed_models()
@@ -327,34 +451,41 @@ if available_models:
 
 with st.sidebar:
 
-    st.title("🤖 Local AI Chatbot")
+    st.markdown(
+        """
+        <div style="padding:8px 0 15px 0;">
+            <h2 style="margin:0;">🤖 Local AI</h2>
+            <p style="color:gray;font-size:13px;">
+                Your personal AI assistant
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-    st.caption("Your personal local AI assistant")
-
-    st.divider()
-
-    # -----------------------------------------------------
-    # NEW CHAT
-    # -----------------------------------------------------
+    # NEW CHAT BUTTON
 
     if st.button(
-        "＋ New Chat",
-        use_container_width=True
+        "＋  New Chat",
+        use_container_width=True,
+        type="primary"
     ):
 
         new_chat = create_new_chat()
 
         st.session_state.chats[new_chat["id"]] = new_chat
+
         st.session_state.active_chat_id = new_chat["id"]
 
         save_chat_data()
+
         st.rerun()
 
-    # -----------------------------------------------------
-    # CONVERSATION HISTORY
-    # -----------------------------------------------------
+    st.divider()
 
-    st.subheader("Your Conversations")
+    # CONVERSATION HISTORY
+
+    st.markdown("### 💬 History")
 
     chat_ids = sorted(
         st.session_state.chats.keys(),
@@ -364,31 +495,38 @@ with st.sidebar:
         reverse=True
     )
 
-    selected_chat_id = st.selectbox(
-        "Select a conversation",
-        options=chat_ids,
-        index=chat_ids.index(
-            st.session_state.active_chat_id
-        ),
-        format_func=lambda chat_id: (
-            st.session_state.chats[chat_id]["title"]
+    for chat_id in chat_ids:
+
+        chat = st.session_state.chats[chat_id]
+
+        is_active = (
+            chat_id == st.session_state.active_chat_id
         )
-    )
 
-    if selected_chat_id != st.session_state.active_chat_id:
+        button_label = (
+            f"●  {chat['title']}"
+            if is_active
+            else f"   {chat['title']}"
+        )
 
-        st.session_state.active_chat_id = selected_chat_id
+        if st.button(
+            button_label,
+            key=f"history_{chat_id}",
+            use_container_width=True,
+            type="secondary" if not is_active else "primary"
+        ):
 
-        save_chat_data()
-        st.rerun()
+            st.session_state.active_chat_id = chat_id
+
+            save_chat_data()
+
+            st.rerun()
 
     active_chat = get_active_chat()
 
-    # -----------------------------------------------------
-    # RENAME CHAT
-    # -----------------------------------------------------
+    # CHAT MANAGEMENT
 
-    with st.expander("✏️ Rename conversation"):
+    with st.expander("✏️ Manage conversation"):
 
         with st.form("rename_chat_form"):
 
@@ -398,75 +536,67 @@ with st.sidebar:
                 max_chars=60
             )
 
-            rename_submitted = st.form_submit_button(
-                "Save name",
+            if st.form_submit_button(
+                "Rename",
                 use_container_width=True
-            )
-
-            if rename_submitted:
+            ):
 
                 if new_title.strip():
 
                     active_chat["title"] = new_title.strip()
+
                     save_chat_data()
+
                     st.rerun()
 
                 else:
-                    st.warning("Please enter a conversation name.")
 
-    # -----------------------------------------------------
-    # DELETE AND CLEAR CHAT
-    # -----------------------------------------------------
+                    st.warning("Enter a conversation name.")
 
-    st.divider()
+        if st.button(
+            "Clear current chat",
+            use_container_width=True
+        ):
 
-    if st.button(
-        "🗑️ Clear Current Chat",
-        use_container_width=True
-    ):
+            active_chat["messages"] = []
 
-        active_chat["messages"] = []
-        active_chat["title"] = "New Chat"
-        active_chat["updated_at"] = get_current_time()
+            active_chat["title"] = "New Chat"
 
-        save_chat_data()
-        st.rerun()
+            active_chat["updated_at"] = get_current_time()
 
-    if st.button(
-        "❌ Delete Current Conversation",
-        use_container_width=True
-    ):
+            save_chat_data()
 
-        del st.session_state.chats[
-            st.session_state.active_chat_id
-        ]
+            st.rerun()
 
-        if st.session_state.chats:
+        if st.button(
+            "Delete conversation",
+            use_container_width=True
+        ):
 
-            next_chat_id = next(
+            del st.session_state.chats[
+                st.session_state.active_chat_id
+            ]
+
+            if not st.session_state.chats:
+
+                new_chat = create_new_chat()
+
+                st.session_state.chats[new_chat["id"]] = new_chat
+
+            st.session_state.active_chat_id = next(
                 iter(st.session_state.chats)
             )
 
-        else:
+            save_chat_data()
 
-            new_chat = create_new_chat()
+            st.rerun()
 
-            st.session_state.chats[new_chat["id"]] = new_chat
-            next_chat_id = new_chat["id"]
-
-        st.session_state.active_chat_id = next_chat_id
-
-        save_chat_data()
-        st.rerun()
-
-    # -----------------------------------------------------
-    # DOWNLOAD CHAT
-    # -----------------------------------------------------
+    # DOWNLOAD CONVERSATION
 
     if active_chat["messages"]:
 
         st.download_button(
-            "📥 Download Current Chat",
+            "📥 Download conversation",
             data=format_chat_as_markdown(active_chat),
             file_name="chat_conversation.md",
             mime="text/markdown",
@@ -475,17 +605,33 @@ with st.sidebar:
 
     st.divider()
 
-    # -----------------------------------------------------
-    # MODEL SETTINGS
-    # -----------------------------------------------------
+    # APPEARANCE
 
-    st.subheader("⚙️ Model Settings")
+    st.markdown("### 🎨 Appearance")
+
+    selected_theme = st.selectbox(
+        "Theme",
+        ["Dark", "Light"],
+        index=(
+            0
+            if st.session_state.theme == "Dark"
+            else 1
+        )
+    )
+
+    st.session_state.theme = selected_theme
+
+    st.divider()
+
+    # MODEL SETTINGS
+
+    st.markdown("### ⚙️ AI Settings")
 
     if available_models:
 
         selected_model = st.selectbox(
-            "Choose AI Model",
-            options=available_models,
+            "AI Model",
+            available_models,
             index=available_models.index(
                 st.session_state.selected_model
             )
@@ -500,138 +646,368 @@ with st.sidebar:
         )
 
     st.caption(
-        f"Current model: {st.session_state.selected_model}"
+        f"Selected model: {st.session_state.selected_model}"
     )
 
-    # -----------------------------------------------------
-    # GENERATION SETTINGS
-    # -----------------------------------------------------
-
-    with st.expander("Advanced Generation Settings"):
+    with st.expander("Advanced settings"):
 
         st.session_state.temperature = st.slider(
             "Temperature",
-            min_value=0.0,
-            max_value=1.0,
-            value=st.session_state.temperature,
-            step=0.1,
-            help="Lower values produce more consistent answers."
+            0.0,
+            1.0,
+            st.session_state.temperature,
+            0.1
         )
 
         st.session_state.max_tokens = st.slider(
             "Maximum response tokens",
-            min_value=128,
-            max_value=1024,
-            value=st.session_state.max_tokens,
-            step=64,
-            help="Higher values allow longer responses but may take longer."
+            128,
+            1024,
+            st.session_state.max_tokens,
+            64
         )
-
-        st.caption(
-            "These settings affect newly generated responses."
-        )
-
-    # -----------------------------------------------------
-    # SYSTEM PROMPT
-    # -----------------------------------------------------
-
-    with st.expander("Customize AI Instructions"):
 
         st.session_state.system_prompt = st.text_area(
-            "System prompt",
+            "AI instructions",
             value=st.session_state.system_prompt,
-            height=250,
-            help="Instructions that define how the assistant behaves."
+            height=220
         )
 
         if st.button(
-            "Reset Instructions",
+            "Reset AI instructions",
             use_container_width=True
         ):
 
             st.session_state.system_prompt = DEFAULT_SYSTEM_PROMPT
+
             st.rerun()
 
     st.divider()
 
-    # -----------------------------------------------------
-    # APPLICATION INFORMATION
-    # -----------------------------------------------------
-
-    st.subheader("About")
-
-    st.markdown("**AI Runtime:** Ollama")
-    st.markdown("**Interface:** Streamlit")
-    st.markdown("**Storage:** Local JSON")
-    st.markdown("**Execution:** Local")
-
-    st.caption(
-        "Your conversations are stored on this computer."
+    st.markdown(
+        """
+        <div style="text-align:center;padding:8px 0;color:gray;">
+            <p style="font-size:12px;margin:0;">
+                Powered by Ollama
+            </p>
+            <p style="font-size:11px;margin:4px 0;">
+                Private · Local · Open Source
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
 
+
 # =========================================================
-# 9. MAIN CHAT INTERFACE
+# 9. THEME STYLING
 # =========================================================
 
-st.title("🤖 Local AI Chatbot")
+if st.session_state.theme == "Dark":
+
+    background = "#0e1117"
+    sidebar_background = "#151922"
+    text_color = "#f1f5f9"
+    muted_color = "#9ca3af"
+    border_color = "#303642"
+    assistant_background = "#1a202c"
+    user_background = "#243247"
+    input_background = "#1a202c"
+    button_background = "#252d3a"
+
+else:
+
+    background = "#ffffff"
+    sidebar_background = "#f7f8fa"
+    text_color = "#202124"
+    muted_color = "#6b7280"
+    border_color = "#e5e7eb"
+    assistant_background = "#f3f4f6"
+    user_background = "#e8f0fe"
+    input_background = "#ffffff"
+    button_background = "#f3f4f6"
+
+
+st.markdown(
+    f"""
+    <style>
+
+    /* GLOBAL APPLICATION */
+
+    .stApp,
+    [data-testid="stAppViewContainer"] {{
+        background-color: {background} !important;
+        color: {text_color} !important;
+    }}
+
+    .main .block-container {{
+        max-width: 1050px;
+        padding-top: 2rem;
+        padding-bottom: 7rem;
+    }}
+
+    /* SIDEBAR */
+
+    [data-testid="stSidebar"] {{
+        background-color: {sidebar_background} !important;
+        border-right: 1px solid {border_color};
+    }}
+
+    [data-testid="stSidebar"] > div {{
+        background-color: {sidebar_background} !important;
+    }}
+
+    [data-testid="stSidebar"] * {{
+        color: {text_color};
+    }}
+
+    /* TEXT */
+
+    h1, h2, h3, h4, p, li, label,
+    [data-testid="stMarkdownContainer"] {{
+        color: {text_color};
+    }}
+
+    [data-testid="stCaptionContainer"] {{
+        color: {muted_color} !important;
+    }}
+
+    
+    /* CHAT MESSAGE DEFAULT */
+
+    [data-testid="stChatMessage"] {{
+        border: 1px solid {border_color};
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 12px;
+    }}
+
+    /* USER MESSAGE */
+
+    [data-testid="stChatMessage"]:has(
+        [data-testid="stChatMessageAvatarUser"]
+    ) {{
+        background-color: {user_background} !important;
+    }}
+
+    /* AI ASSISTANT MESSAGE */
+
+    [data-testid="stChatMessage"]:has(
+        [data-testid="stChatMessageAvatarAssistant"]
+    ) {{
+        background-color: {assistant_background} !important;
+    }}
+
+    /* CHAT INPUT */
+
+    [data-testid="stChatInput"] {{
+        background-color: {input_background} !important;
+        border: 1px solid {border_color} !important;
+        border-radius: 15px;
+    }}
+
+    [data-testid="stChatInput"] textarea {{
+        background-color: {input_background} !important;
+        color: {text_color} !important;
+        -webkit-text-fill-color: {text_color} !important;
+    }}
+
+    [data-testid="stChatInput"] textarea::placeholder {{
+        color: {muted_color} !important;
+        -webkit-text-fill-color: {muted_color} !important;
+    }}
+
+    /* TEXT INPUTS */
+
+    .stTextInput input,
+    .stTextArea textarea {{
+        background-color: {input_background} !important;
+        color: {text_color} !important;
+        -webkit-text-fill-color: {text_color} !important;
+        border: 1px solid {border_color} !important;
+        border-radius: 9px;
+    }}
+
+    /* SELECT BOXES */
+
+    [data-testid="stSelectbox"] [data-baseweb="select"] > div {{
+        background-color: {input_background} !important;
+        color: {text_color} !important;
+        border-color: {border_color} !important;
+    }}
+
+    [data-testid="stSelectbox"] input {{
+        color: {text_color} !important;
+    }}
+
+    /* BUTTONS */
+
+    .stButton button,
+    .stDownloadButton button {{
+        background-color: {button_background} !important;
+        color: {text_color} !important;
+        border: 1px solid {border_color} !important;
+        border-radius: 9px;
+        transition: all 0.2s ease;
+    }}
+
+    .stButton button:hover,
+    .stDownloadButton button:hover {{
+        border-color: #6366f1 !important;
+        color: {text_color} !important;
+    }}
+
+    /* SLIDERS */
+
+    [data-testid="stSlider"] {{
+        color: {text_color};
+    }}
+
+    /* EXPANDERS */
+
+    [data-testid="stExpander"] {{
+        border-color: {border_color} !important;
+    }}
+
+    [data-testid="stExpander"] details {{
+        background-color: {sidebar_background};
+    }}
+
+    /* DIVIDERS */
+
+    hr {{
+        border-color: {border_color} !important;
+    }}
+
+    /* CODE BLOCKS */
+
+    [data-testid="stCodeBlock"] {{
+        border-radius: 10px;
+    }}
+
+    /* CHECKBOXES AND RADIO BUTTONS */
+
+    [data-testid="stCheckbox"],
+    [data-testid="stRadio"] {{
+        color: {text_color} !important;
+    }}
+
+    /* POPOVERS AND DROPDOWNS */
+
+    [data-baseweb="popover"] {{
+        background-color: {input_background} !important;
+        color: {text_color} !important;
+    }}
+
+    
+    /* TOP HEADER */
+
+    [data-testid="stHeader"] {{
+        background-color: transparent !important;
+    }}
+
+    /* BOTTOM CHAT INPUT AREA */
+
+    [data-testid="stBottom"] {{
+        background-color: transparent !important;
+    }}
+
+    [data-testid="stBottom"] > div {{
+        background-color: transparent !important;
+    }}
+
+    [data-testid="stBottomBlockContainer"] {{
+        background-color: transparent !important;
+    }}
+
+    /* CHAT INPUT OUTER CONTAINER */
+
+    [data-testid="stChatInput"] {{
+        background-color: {input_background} !important;
+        border: 1px solid {border_color} !important;
+    }}
+
+    [data-testid="stChatInput"] > div {{
+        background-color: {input_background} !important;
+    }}
+
+    /* MAIN CONTENT BOTTOM AREA */
+
+    [data-testid="stMain"] {{
+        background-color: {background} !important;
+    }}
+
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+
+# =========================================================
+# 10. MAIN CHAT HEADER
+# =========================================================
+
+active_chat = get_active_chat()
+
+st.markdown(
+    """
+    <div style="padding:5px 0 10px 0;">
+        <h1 style="font-size:29px;margin-bottom:3px;">
+            Local AI Chatbot
+        </h1>
+        <p style="font-size:14px;color:gray;">
+            Your personal AI assistant, running locally.
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 st.caption(
-    "Ask questions, write code and explore ideas with your local AI assistant."
+    f"Model: {st.session_state.selected_model}"
 )
 
 st.divider()
 
-active_chat = get_active_chat()
-
-st.subheader(active_chat["title"])
-
-# Show current model
-st.caption(
-    f"Running with {st.session_state.selected_model}"
-)
-
 
 # =========================================================
-# 10. HANDLE RESPONSE REGENERATION
-# =========================================================
-
-if st.session_state.get("regenerate_response", False):
-
-    messages = active_chat["messages"]
-
-    if messages and messages[-1]["role"] == "assistant":
-        messages.pop()
-
-    active_chat["updated_at"] = get_current_time()
-
-    st.session_state.regenerate_response = False
-
-    save_chat_data()
-
-    st.session_state.generate_again = True
-
-
-# =========================================================
-# 11. DISPLAY CHAT HISTORY
+# 11. DISPLAY CONVERSATION HISTORY
 # =========================================================
 
 if not active_chat["messages"]:
 
-    st.info(
-        "👋 Hello! Ask me anything to start a conversation."
-    )
-
     st.markdown(
         """
-        **Try asking:**
-
-        - Explain Artificial Intelligence.
-        - Write a Python program to check prime numbers.
-        - Explain Python decorators.
-        - Help me debug a Python program.
-        """
+        <div style="
+            text-align:center;
+            padding:75px 15px 65px 15px;
+        ">
+            <div style="font-size:48px;">🤖</div>
+            <h2 style="margin:15px 0 5px 0;">
+                How can I help you today?
+            </h2>
+            <p style="color:gray;font-size:14px;">
+                Ask a question, write code or explore something new.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
     )
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+
+        st.markdown("**💡 Learn something**")
+
+        st.caption("Explain Artificial Intelligence in simple terms.")
+
+    with col2:
+
+        st.markdown("**💻 Write code**")
+
+        st.caption("Write a Python program to check prime numbers.")
 
 
 for index, message in enumerate(active_chat["messages"]):
@@ -640,9 +1016,16 @@ for index, message in enumerate(active_chat["messages"]):
 
         st.markdown(message["content"])
 
+        if message["role"] == "assistant":
+
+            copy_button(
+                message["content"],
+                f"{active_chat['id']}_{index}"
+            )
+
 
 # =========================================================
-# 12. REGENERATE RESPONSE BUTTON
+# 12. REGENERATE LAST RESPONSE
 # =========================================================
 
 if (
@@ -650,25 +1033,15 @@ if (
     and active_chat["messages"][-1]["role"] == "assistant"
 ):
 
-    if st.button("🔄 Regenerate Response"):
+    if st.button("🔄 Regenerate response"):
 
-        st.session_state.regenerate_response = True
-        st.rerun()
+        active_chat["messages"].pop()
 
+        save_chat_data()
 
-# =========================================================
-# 13. GENERATE RESPONSE AFTER REGENERATION
-# =========================================================
+        try:
 
-if st.session_state.get("generate_again", False):
-
-    st.session_state.generate_again = False
-
-    try:
-
-        with st.chat_message("assistant"):
-
-            with st.spinner("Thinking..."):
+            with st.spinner("Generating a new response..."):
 
                 answer = generate_ai_response(
                     messages=active_chat["messages"],
@@ -678,36 +1051,38 @@ if st.session_state.get("generate_again", False):
                     max_tokens=st.session_state.max_tokens
                 )
 
-            st.markdown(answer)
+            active_chat["messages"].append({
+                "role": "assistant",
+                "content": answer
+            })
 
-        active_chat["messages"].append({
-            "role": "assistant",
-            "content": answer
-        })
+            active_chat["updated_at"] = get_current_time()
 
-        active_chat["updated_at"] = get_current_time()
+            save_chat_data()
 
-        save_chat_data()
+            st.rerun()
 
-        st.rerun()
+        except Exception as error:
 
-    except Exception as error:
-
-        st.error(f"Unable to generate response: {error}")
+            st.error(f"Unable to regenerate response: {error}")
 
 
 # =========================================================
-# 14. CHAT INPUT AND NORMAL RESPONSE GENERATION
+# 13. CHAT INPUT
 # =========================================================
 
 prompt = st.chat_input(
-    "Ask me anything...",
+    "Message Local AI...",
     disabled=not bool(available_models)
 )
 
+
+# =========================================================
+# 14. GENERATE AI RESPONSE
+# =========================================================
+
 if prompt:
 
-    # Save user message
     active_chat["messages"].append({
         "role": "user",
         "content": prompt
@@ -719,11 +1094,10 @@ if prompt:
 
     save_chat_data()
 
-    # Display user message
     with st.chat_message("user"):
+
         st.markdown(prompt)
 
-    # Generate assistant response
     try:
 
         with st.chat_message("assistant"):
@@ -740,7 +1114,11 @@ if prompt:
 
             st.markdown(answer)
 
-        # Save assistant response
+            copy_button(
+                answer,
+                f"{active_chat['id']}_new"
+            )
+
         active_chat["messages"].append({
             "role": "assistant",
             "content": answer
@@ -753,9 +1131,9 @@ if prompt:
     except Exception as error:
 
         st.error(
-            f"Unable to connect to Ollama or generate a response: {error}"
+            f"Unable to generate a response: {error}"
         )
 
         st.info(
-            "Check whether Ollama is running and your selected model is installed."
+            "Check whether Ollama is running and the selected model is installed."
         )
