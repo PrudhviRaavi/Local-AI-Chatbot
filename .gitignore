@@ -19,3 +19,6 @@ __pycache__/
 # Operating system
 .DS_Store
 Thumbs.db
+
+# Local conversation history
+chat_history.json
