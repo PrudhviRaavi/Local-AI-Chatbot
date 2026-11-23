@@ -605,24 +605,6 @@ with st.sidebar:
 
     st.divider()
 
-    # APPEARANCE
-
-    st.markdown("### 🎨 Appearance")
-
-    selected_theme = st.selectbox(
-        "Theme",
-        ["Dark", "Light"],
-        index=(
-            0
-            if st.session_state.theme == "Dark"
-            else 1
-        )
-    )
-
-    st.session_state.theme = selected_theme
-
-    st.divider()
-
     # MODEL SETTINGS
 
     st.markdown("### ⚙️ AI Settings")
@@ -700,45 +682,61 @@ with st.sidebar:
 
 
 
+
 # =========================================================
 # 9. THEME STYLING
 # =========================================================
 
-if st.session_state.theme == "Dark":
+theme_colors = {
+    "background": "#0e1117",
+    "sidebar": "#151922",
+    "surface": "#1a202c",
+    "surface_hover": "#252d3a",
+    "user_message": "#243247",
+    "assistant_message": "#1a202c",
+    "text": "#f1f5f9",
+    "muted": "#9ca3af",
+    "border": "#303642",
+    "input": "#1a202c",
+    "accent": "#6366f1",
+    "code": "#111827"
+}
 
-    background = "#0e1117"
-    sidebar_background = "#151922"
-    text_color = "#f1f5f9"
-    muted_color = "#9ca3af"
-    border_color = "#303642"
-    assistant_background = "#1a202c"
-    user_background = "#243247"
-    input_background = "#1a202c"
-    button_background = "#252d3a"
-
-else:
-
-    background = "#ffffff"
-    sidebar_background = "#f7f8fa"
-    text_color = "#202124"
-    muted_color = "#6b7280"
-    border_color = "#e5e7eb"
-    assistant_background = "#f3f4f6"
-    user_background = "#e8f0fe"
-    input_background = "#ffffff"
-    button_background = "#f3f4f6"
-
+# Apply theme colors throughout the application
 
 st.markdown(
     f"""
     <style>
 
-    /* GLOBAL APPLICATION */
+    /* =========================================
+       GLOBAL VARIABLES
+    ========================================= */
+
+    :root {{
+        --app-bg: {theme_colors["background"]};
+        --sidebar-bg: {theme_colors["sidebar"]};
+        --surface-bg: {theme_colors["surface"]};
+        --surface-hover: {theme_colors["surface_hover"]};
+        --user-bg: {theme_colors["user_message"]};
+        --assistant-bg: {theme_colors["assistant_message"]};
+        --text-color: {theme_colors["text"]};
+        --muted-color: {theme_colors["muted"]};
+        --border-color: {theme_colors["border"]};
+        --input-bg: {theme_colors["input"]};
+        --accent-color: {theme_colors["accent"]};
+        --code-bg: {theme_colors["code"]};
+    }}
+
+
+    /* =========================================
+       MAIN APPLICATION
+    ========================================= */
 
     .stApp,
-    [data-testid="stAppViewContainer"] {{
-        background-color: {background} !important;
-        color: {text_color} !important;
+    [data-testid="stAppViewContainer"],
+    [data-testid="stMain"] {{
+        background-color: var(--app-bg) !important;
+        color: var(--text-color) !important;
     }}
 
     .main .block-container {{
@@ -747,195 +745,268 @@ st.markdown(
         padding-bottom: 7rem;
     }}
 
-    /* SIDEBAR */
 
-    [data-testid="stSidebar"] {{
-        background-color: {sidebar_background} !important;
-        border-right: 1px solid {border_color};
-    }}
+    /* =========================================
+       SIDEBAR
+    ========================================= */
 
+    [data-testid="stSidebar"],
     [data-testid="stSidebar"] > div {{
-        background-color: {sidebar_background} !important;
+        background-color: var(--sidebar-bg) !important;
+        border-right: 1px solid var(--border-color);
     }}
 
-    [data-testid="stSidebar"] * {{
-        color: {text_color};
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"],
+    [data-testid="stSidebar"] p,
+    [data-testid="stSidebar"] label,
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3,
+    [data-testid="stSidebar"] span {{
+        color: var(--text-color);
     }}
 
-    /* TEXT */
 
-    h1, h2, h3, h4, p, li, label,
+    /* =========================================
+       HEADINGS AND TEXT
+    ========================================= */
+
+    h1, h2, h3, h4, h5, h6,
+    p, li, label,
     [data-testid="stMarkdownContainer"] {{
-        color: {text_color};
+        color: var(--text-color);
     }}
 
-    [data-testid="stCaptionContainer"] {{
-        color: {muted_color} !important;
+    [data-testid="stCaptionContainer"],
+    .stCaption {{
+        color: var(--muted-color) !important;
     }}
 
-    
-    /* CHAT MESSAGE DEFAULT */
+
+    /* =========================================
+       CHAT MESSAGES
+    ========================================= */
 
     [data-testid="stChatMessage"] {{
-        border: 1px solid {border_color};
+        border: 1px solid var(--border-color);
         border-radius: 14px;
         padding: 16px;
         margin-bottom: 12px;
     }}
 
-    /* USER MESSAGE */
-
     [data-testid="stChatMessage"]:has(
         [data-testid="stChatMessageAvatarUser"]
     ) {{
-        background-color: {user_background} !important;
+        background-color: var(--user-bg) !important;
     }}
-
-    /* AI ASSISTANT MESSAGE */
 
     [data-testid="stChatMessage"]:has(
         [data-testid="stChatMessageAvatarAssistant"]
     ) {{
-        background-color: {assistant_background} !important;
+        background-color: var(--assistant-bg) !important;
     }}
 
-    /* CHAT INPUT */
+    [data-testid="stChatMessage"] p,
+    [data-testid="stChatMessage"] li,
+    [data-testid="stChatMessage"] span {{
+        color: var(--text-color);
+    }}
+
+
+    /* =========================================
+       CHAT INPUT
+    ========================================= */
 
     [data-testid="stChatInput"] {{
-        background-color: {input_background} !important;
-        border: 1px solid {border_color} !important;
-        border-radius: 15px;
+        background-color: var(--input-bg) !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 14px !important;
     }}
 
     [data-testid="stChatInput"] textarea {{
-        background-color: {input_background} !important;
-        color: {text_color} !important;
-        -webkit-text-fill-color: {text_color} !important;
+        background-color: var(--input-bg) !important;
+        color: var(--text-color) !important;
+        -webkit-text-fill-color: var(--text-color) !important;
     }}
 
     [data-testid="stChatInput"] textarea::placeholder {{
-        color: {muted_color} !important;
-        -webkit-text-fill-color: {muted_color} !important;
+        color: var(--muted-color) !important;
+        -webkit-text-fill-color: var(--muted-color) !important;
     }}
 
-    /* TEXT INPUTS */
+
+    /* =========================================
+       TEXT INPUTS AND TEXT AREAS
+    ========================================= */
 
     .stTextInput input,
     .stTextArea textarea {{
-        background-color: {input_background} !important;
-        color: {text_color} !important;
-        -webkit-text-fill-color: {text_color} !important;
-        border: 1px solid {border_color} !important;
-        border-radius: 9px;
+        background-color: var(--input-bg) !important;
+        color: var(--text-color) !important;
+        -webkit-text-fill-color: var(--text-color) !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 9px !important;
     }}
 
-    /* SELECT BOXES */
+    .stTextInput input::placeholder,
+    .stTextArea textarea::placeholder {{
+        color: var(--muted-color) !important;
+        -webkit-text-fill-color: var(--muted-color) !important;
+    }}
+
+
+    /* =========================================
+       SELECT BOXES
+    ========================================= */
 
     [data-testid="stSelectbox"] [data-baseweb="select"] > div {{
-        background-color: {input_background} !important;
-        color: {text_color} !important;
-        border-color: {border_color} !important;
+        background-color: var(--input-bg) !important;
+        border-color: var(--border-color) !important;
+        color: var(--text-color) !important;
     }}
 
-    [data-testid="stSelectbox"] input {{
-        color: {text_color} !important;
+    [data-testid="stSelectbox"] input,
+    [data-testid="stSelectbox"] [role="combobox"] {{
+        color: var(--text-color) !important;
     }}
 
-    /* BUTTONS */
+    [data-testid="stSelectbox"] svg {{
+        fill: var(--text-color) !important;
+    }}
+
+
+    /* =========================================
+       DROPDOWN MENUS
+    ========================================= */
+
+    [data-baseweb="popover"],
+    [data-baseweb="menu"],
+    [data-baseweb="select"] [role="listbox"] {{
+        background-color: var(--surface-bg) !important;
+        color: var(--text-color) !important;
+        border: 1px solid var(--border-color) !important;
+    }}
+
+    [data-baseweb="menu"] *,
+    [role="option"] {{
+        color: var(--text-color) !important;
+    }}
+
+    [role="option"]:hover {{
+        background-color: var(--surface-hover) !important;
+    }}
+
+
+    /* =========================================
+       BUTTONS
+    ========================================= */
 
     .stButton button,
     .stDownloadButton button {{
-        background-color: {button_background} !important;
-        color: {text_color} !important;
-        border: 1px solid {border_color} !important;
-        border-radius: 9px;
+        background-color: var(--surface-hover) !important;
+        color: var(--text-color) !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 9px !important;
         transition: all 0.2s ease;
     }}
 
     .stButton button:hover,
     .stDownloadButton button:hover {{
-        border-color: #6366f1 !important;
-        color: {text_color} !important;
+        border-color: var(--accent-color) !important;
+        opacity: 0.9;
     }}
 
-    /* SLIDERS */
+    .stButton button[kind="primary"] {{
+        background-color: var(--accent-color) !important;
+        color: #ffffff !important;
+        border-color: var(--accent-color) !important;
+    }}
+
+
+    /* =========================================
+       SLIDERS
+    ========================================= */
 
     [data-testid="stSlider"] {{
-        color: {text_color};
+        color: var(--text-color) !important;
     }}
 
-    /* EXPANDERS */
+    [data-testid="stSlider"] label,
+    [data-testid="stSlider"] [data-testid="stMarkdownContainer"] {{
+        color: var(--text-color) !important;
+    }}
+
+
+    /* =========================================
+       EXPANDERS
+    ========================================= */
 
     [data-testid="stExpander"] {{
-        border-color: {border_color} !important;
+        background-color: var(--sidebar-bg) !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 10px !important;
     }}
 
-    [data-testid="stExpander"] details {{
-        background-color: {sidebar_background};
+    [data-testid="stExpander"] summary,
+    [data-testid="stExpander"] summary span {{
+        color: var(--text-color) !important;
     }}
 
-    /* DIVIDERS */
 
-    hr {{
-        border-color: {border_color} !important;
+    /* =========================================
+       CHECKBOXES AND RADIO BUTTONS
+    ========================================= */
+
+    [data-testid="stCheckbox"] label,
+    [data-testid="stRadio"] label {{
+        color: var(--text-color) !important;
     }}
 
-    /* CODE BLOCKS */
+
+    /* =========================================
+       CODE BLOCKS
+    ========================================= */
 
     [data-testid="stCodeBlock"] {{
+        border: 1px solid var(--border-color);
         border-radius: 10px;
     }}
 
-    /* CHECKBOXES AND RADIO BUTTONS */
-
-    [data-testid="stCheckbox"],
-    [data-testid="stRadio"] {{
-        color: {text_color} !important;
+    [data-testid="stCodeBlock"] pre {{
+        background-color: var(--code-bg) !important;
     }}
 
-    /* POPOVERS AND DROPDOWNS */
 
-    [data-baseweb="popover"] {{
-        background-color: {input_background} !important;
-        color: {text_color} !important;
+    /* =========================================
+       DIVIDERS
+    ========================================= */
+
+    hr {{
+        border-color: var(--border-color) !important;
     }}
 
-    
-    /* TOP HEADER */
+
+    /* =========================================
+       TOP HEADER AND BOTTOM AREA
+    ========================================= */
 
     [data-testid="stHeader"] {{
         background-color: transparent !important;
     }}
 
-    /* BOTTOM CHAT INPUT AREA */
-
-    [data-testid="stBottom"] {{
-        background-color: transparent !important;
-    }}
-
-    [data-testid="stBottom"] > div {{
-        background-color: transparent !important;
-    }}
-
+    [data-testid="stBottom"],
+    [data-testid="stBottom"] > div,
     [data-testid="stBottomBlockContainer"] {{
-        background-color: transparent !important;
+        background-color: var(--app-bg) !important;
     }}
 
-    /* CHAT INPUT OUTER CONTAINER */
 
-    [data-testid="stChatInput"] {{
-        background-color: {input_background} !important;
-        border: 1px solid {border_color} !important;
-    }}
+    /* =========================================
+       GENERAL BORDERS
+    ========================================= */
 
-    [data-testid="stChatInput"] > div {{
-        background-color: {input_background} !important;
-    }}
-
-    /* MAIN CONTENT BOTTOM AREA */
-
-    [data-testid="stMain"] {{
-        background-color: {background} !important;
+    [data-testid="stVerticalBlockBorderWrapper"] {{
+        border-color: var(--border-color) !important;
     }}
 
     </style>

@@ -2,16 +2,16 @@
 
 A privacy-focused AI chatbot built using **Python, Streamlit, and Ollama**. It runs AI models locally on your computer, allowing you to interact with an AI assistant without depending on external AI APIs.
 
-The application provides a modern chat interface with conversation management, customizable AI settings, Dark and Light themes, and persistent chat history.
+The application provides a modern dark-themed chat interface with conversation management, customizable AI settings, and persistent chat history.
 
 ## ✨ Features
 
 ### 💬 AI Chat
 - Interact with locally running AI models using Ollama.
-- Supports switching between installed Ollama models.
-- Maintains context throughout the current conversation.
-- Beginner-friendly AI responses with Markdown formatting.
-- Customizable AI system instructions.
+- Switch between installed Ollama models.
+- Maintain context throughout the current conversation.
+- Receive beginner-friendly AI responses with Markdown formatting.
+- Customize AI system instructions.
 - Regenerate previous AI responses.
 - Copy AI responses to the clipboard.
 
@@ -27,14 +27,15 @@ The application provides a modern chat interface with conversation management, c
 
 ### 🎨 Modern User Interface
 - Clean and modern Streamlit interface.
-- Dark and Light theme options.
+- Dark-only appearance.
 - Custom chat message styling.
 - Separate visual styles for user and AI messages.
 - Sidebar conversation history.
-- Improved chat input and buttons.
+- Styled chat input, buttons, and interface elements.
 - Responsive wide-screen layout.
 
 ### ⚙️ AI Configuration
+
 Customize how the AI assistant responds:
 
 | Setting | Description |
@@ -49,7 +50,7 @@ Customize how the AI assistant responds:
 - No external AI API key required.
 - Conversations are stored locally on your computer.
 - Chat history is saved in a JSON file.
-- Your prompts are sent to your local Ollama service for processing.
+- Prompts are sent to your local Ollama service for processing.
 
 ## 🛠️ Technology Stack
 
@@ -143,15 +144,13 @@ ollama pull qwen3:1.7b
 
 You can also download other compatible models through Ollama.
 
-### 8. Start Ollama
-
-Make sure the Ollama service is running.
-
-Check the installation:
+### 8. Verify Ollama installation
 
 ```bash
 ollama --version
 ```
+
+Make sure the Ollama service is running.
 
 ### 9. Run the application
 
@@ -188,19 +187,19 @@ The application is configured to use:
 DEFAULT_MODEL = "qwen3:1.7b"
 ```
 
-The application automatically retrieves the installed Ollama models and allows you to switch between them through the sidebar.
+The application automatically retrieves installed Ollama models and allows you to switch between them through the sidebar.
 
 ## 📸 Application Features
 
 The application interface includes:
 
+- Dark-themed chatbot interface.
 - Conversation history and management in the sidebar.
 - AI model selection and advanced generation settings.
-- Dark and Light appearance modes.
 - Chat interface with copy and regenerate controls.
 - Markdown conversation export.
 
-*Add your actual application screenshots here as the project UI evolves.*
+*Add actual application screenshots here as the project UI evolves.*
 
 ## 🔮 Future Enhancements
 
@@ -213,7 +212,7 @@ Planned improvements for future versions:
 - Streaming AI responses.
 - Improved conversation search.
 - Additional local AI model support.
-- Enhanced UI customization.
+- Further UI refinements.
 
 ## 🔐 Privacy
 
