@@ -277,21 +277,27 @@ def generate_ai_response(
             "num_predict": max_tokens
         },
 
-        "stream": False
+        "stream": True
     }
 
     # Disable Qwen 3 thinking mode
     if model.lower().startswith("qwen3"):
         request["think"] = False
 
-    response = ollama.chat(**request)
+    response_stream = ollama.chat(**request)
 
-    answer = response.message.content
+    received_content = False
 
-    if not answer:
+    for chunk in response_stream:
+
+        content = chunk.message.content or ""
+
+        if content:
+            received_content = True
+            yield content
+
+    if not received_content:
         raise ValueError("The model returned an empty response.")
-
-    return answer
 
 
 # =========================================================
@@ -1106,26 +1112,37 @@ if (
 
     if st.button("🔄 Regenerate response"):
 
-        active_chat["messages"].pop()
-
-        save_chat_data()
-
         try:
+
+            # Keep the existing response safe
+            conversation_context = active_chat["messages"][:-1]
+
+            new_answer = ""
 
             with st.spinner("Generating a new response..."):
 
-                answer = generate_ai_response(
-                    messages=active_chat["messages"],
+                response_placeholder = st.empty()
+
+                for chunk in generate_ai_response(
+                    messages=conversation_context,
                     model=st.session_state.selected_model,
                     system_prompt=st.session_state.system_prompt,
                     temperature=st.session_state.temperature,
                     max_tokens=st.session_state.max_tokens
-                )
+                ):
 
-            active_chat["messages"].append({
+                    new_answer += chunk
+
+                    response_placeholder.markdown(new_answer)
+
+            if not new_answer.strip():
+                raise ValueError("The model returned an empty response.")
+
+            # Replace old response only after successful generation
+            active_chat["messages"][-1] = {
                 "role": "assistant",
-                "content": answer
-            })
+                "content": new_answer
+            }
 
             active_chat["updated_at"] = get_current_time()
 
@@ -1136,7 +1153,7 @@ if (
         except Exception as error:
 
             st.error(f"Unable to regenerate response: {error}")
-
+            st.info("Your previous AI response has been preserved.")
 
 # =========================================================
 # 13. CHAT INPUT
@@ -1146,7 +1163,6 @@ prompt = st.chat_input(
     "Message Local AI...",
     disabled=not bool(available_models)
 )
-
 
 # =========================================================
 # 14. GENERATE AI RESPONSE
@@ -1166,24 +1182,32 @@ if prompt:
     save_chat_data()
 
     with st.chat_message("user"):
-
         st.markdown(prompt)
 
     try:
 
         with st.chat_message("assistant"):
 
+            answer = ""
+
+            response_placeholder = st.empty()
+
             with st.spinner("Thinking..."):
 
-                answer = generate_ai_response(
+                for chunk in generate_ai_response(
                     messages=active_chat["messages"],
                     model=st.session_state.selected_model,
                     system_prompt=st.session_state.system_prompt,
                     temperature=st.session_state.temperature,
                     max_tokens=st.session_state.max_tokens
-                )
+                ):
 
-            st.markdown(answer)
+                    answer += chunk
+
+                    response_placeholder.markdown(answer)
+
+            if not answer.strip():
+                raise ValueError("The model returned an empty response.")
 
             copy_button(
                 answer,
