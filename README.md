@@ -122,6 +122,7 @@ Local-AI-Chatbot/
 ├── 📄 requirements.txt        # Python dependencies
 ├── 📄 README.md               # Project documentation
 ├── 📄 .gitignore              # Git ignore rules
+├── 📂 screenshots/            # Application UI screenshots
 │
 ├── 💾 chat_history.json       # Generated locally (not committed)
 │
@@ -281,7 +282,50 @@ The application interface includes:
 - 💬 Chat interface with copy and regenerate controls
 - 📥 Markdown conversation export
 
-> *Add actual application screenshots here as the project UI evolves.*
+> *Real screenshots captured from the running Local AI Chatbot application using `qwen3:1.7b`.*
+
+<table>
+<tr>
+<td width="50%" align="center">
+
+**🏠 Welcome Screen & Dark Interface**
+
+![Welcome Screen](screenshots/01-welcome-screen.png)
+
+*Initial dark-themed chat view with prompt suggestions and sidebar navigation.*
+
+</td>
+<td width="50%" align="center">
+
+**💬 AI Chat, Code Formatting & Controls**
+
+![Active Chat and AI Response](screenshots/02-chat-conversation.png)
+
+*Formatted Markdown & Python code output with **Copy response**, **Regenerate response**, and **Download conversation**.*
+
+</td>
+</tr>
+<tr>
+<td width="50%" align="center">
+
+**🗂️ Sidebar History & Conversation Management**
+
+![Conversation Management](screenshots/03-conversation-management.png)
+
+*Multiple conversations in history with **Rename**, **Clear current chat**, and **Delete conversation** controls.*
+
+</td>
+<td width="50%" align="center">
+
+**⚙️ AI Settings & Advanced Configuration**
+
+![AI Settings](screenshots/04-ai-settings.png)
+
+*Model selector (`qwen3:1.7b`), **Temperature**, **Maximum response tokens**, and customizable **AI instructions**.*
+
+</td>
+</tr>
+</table>
 
 ---
 
