@@ -1,166 +1,240 @@
+<div align="center">
+
 # 🤖 Local AI Chatbot
 
-A privacy-focused AI chatbot built using **Python, Streamlit, and Ollama**. It runs AI models locally on your computer, allowing you to interact with an AI assistant without depending on external AI APIs.
+**A privacy-first AI assistant that runs entirely on your machine.**
 
-The application provides a modern dark-themed chat interface with conversation management, customizable AI settings, and persistent chat history.
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Ollama](https://img.shields.io/badge/Ollama-000000?style=for-the-badge&logo=ollama&logoColor=white)](https://ollama.com/)
+[![License](https://img.shields.io/badge/License-Open_Source-22c55e?style=for-the-badge)](#-license)
+
+<br>
+
+Built with **Python**, **Streamlit**, and **Ollama** — no external AI APIs, no data leaving your computer.
+
+A modern dark-themed chat interface with conversation management, customizable AI settings, and persistent chat history.
+
+<br>
+
+</div>
+
+---
 
 ## ✨ Features
 
+<table>
+<tr>
+<td width="50%">
+
 ### 💬 AI Chat
-- Interact with locally running AI models using Ollama.
-- Switch between installed Ollama models.
-- Maintain context throughout the current conversation.
-- Receive beginner-friendly AI responses with Markdown formatting.
-- Customize AI system instructions.
-- Regenerate previous AI responses.
-- Copy AI responses to the clipboard.
+
+- 🔄 Interact with locally running AI models via Ollama
+- 🔀 Switch between installed Ollama models
+- 🧠 Maintain context throughout the current conversation
+- 📝 Beginner-friendly responses with Markdown formatting
+- ⚙️ Customize AI system instructions
+- 🔁 Regenerate previous AI responses
+- 📋 Copy AI responses to the clipboard
+
+</td>
+<td width="50%">
 
 ### 🗂️ Conversation Management
-- Create multiple conversations.
-- Switch between previous conversations.
-- Automatically generate conversation titles from the first user message.
-- Rename conversations.
-- Delete individual conversations.
-- Clear the current conversation.
-- Automatically save conversation history.
-- Export conversations as Markdown files.
+
+- ➕ Create multiple conversations
+- 🔄 Switch between previous conversations
+- ✏️ Auto-generate titles from first user message
+- 📝 Rename conversations
+- 🗑️ Delete individual conversations
+- 🧹 Clear the current conversation
+- 💾 Automatically save conversation history
+- 📥 Export conversations as Markdown files
+
+</td>
+</tr>
+<tr>
+<td width="50%">
 
 ### 🎨 Modern User Interface
-- Clean and modern Streamlit interface.
-- Dark-only appearance.
-- Custom chat message styling.
-- Separate visual styles for user and AI messages.
-- Sidebar conversation history.
-- Styled chat input, buttons, and interface elements.
-- Responsive wide-screen layout.
 
-### ⚙️ AI Configuration
+- 🖥️ Clean and modern Streamlit interface
+- 🌙 Dark-only appearance
+- 💬 Custom chat message styling
+- 👤 Separate visual styles for user and AI messages
+- 📜 Sidebar conversation history
+- 🎯 Styled chat input, buttons, and UI elements
+- 📐 Responsive wide-screen layout
 
-Customize how the AI assistant responds:
+</td>
+<td width="50%">
 
-| Setting | Description |
-|---|---|
-| AI Model | Select from installed Ollama models |
-| Temperature | Control response creativity |
-| Maximum Tokens | Configure the maximum response length |
-| System Prompt | Customize the AI assistant's behavior |
+### 🔒 Privacy & Local Processing
 
-### 🔒 Privacy and Local Processing
-- AI inference runs locally through Ollama.
-- No external AI API key required.
-- Conversations are stored locally on your computer.
-- Chat history is saved in a JSON file.
-- Prompts are sent to your local Ollama service for processing.
+- 🏠 AI inference runs locally through Ollama
+- 🔑 No external AI API key required
+- 💻 Conversations stored locally on your computer
+- 📄 Chat history saved in a JSON file
+- 🛡️ Prompts sent only to your local Ollama service
+
+</td>
+</tr>
+</table>
+
+---
+
+## ⚙️ AI Configuration
+
+> Customize how the AI assistant responds through the sidebar settings panel.
+
+| Setting | Description | Default |
+|:---|:---|:---:|
+| 🤖 **AI Model** | Select from installed Ollama models | `qwen3:1.7b` |
+| 🌡️ **Temperature** | Control response creativity (0.0 – 1.0) | `0.3` |
+| 📏 **Maximum Tokens** | Configure the maximum response length | `512` |
+| 📋 **System Prompt** | Customize the AI assistant's behavior | Built-in |
+
+---
 
 ## 🛠️ Technology Stack
 
+<div align="center">
+
 | Technology | Purpose |
-|---|---|
-| Python | Application logic |
-| Streamlit | Web-based user interface |
-| Ollama | Local AI model execution |
-| Qwen 3 1.7B | Default conversational AI model |
-| JSON | Persistent conversation storage |
-| HTML, CSS and JavaScript | UI styling and clipboard functionality |
+|:---:|:---|
+| ![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white) | Application logic |
+| ![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat-square&logo=streamlit&logoColor=white) | Web-based user interface |
+| ![Ollama](https://img.shields.io/badge/Ollama-000000?style=flat-square&logo=ollama&logoColor=white) | Local AI model execution |
+| ![Qwen](https://img.shields.io/badge/Qwen_3-1.7B-6366f1?style=flat-square) | Default conversational AI model |
+| ![JSON](https://img.shields.io/badge/JSON-292929?style=flat-square&logo=json&logoColor=white) | Persistent conversation storage |
+| ![HTML/CSS/JS](https://img.shields.io/badge/HTML%2FCSS%2FJS-E34F26?style=flat-square&logo=html5&logoColor=white) | UI styling and clipboard functionality |
+
+</div>
+
+---
 
 ## 📁 Project Structure
 
-```text
+```
 Local-AI-Chatbot/
 │
-├── app.py
-├── requirements.txt
-├── README.md
-├── .gitignore
+├── 📄 app.py                  # Main application
+├── 📄 requirements.txt        # Python dependencies
+├── 📄 README.md               # Project documentation
+├── 📄 .gitignore              # Git ignore rules
 │
-├── chat_history.json       # Generated locally
+├── 💾 chat_history.json       # Generated locally (not committed)
 │
-└── venv/                   # Python virtual environment
+└── 📂 venv/                   # Python virtual environment (not committed)
 ```
 
-**Note:** `chat_history.json` and `venv/` are local application files and should not be committed to GitHub.
+> [!NOTE]
+> `chat_history.json` and `venv/` are local application files and are excluded from version control via `.gitignore`.
+
+---
 
 ## 💻 System Requirements
 
-- Windows, Linux, or macOS.
-- Python 3.10 or later.
-- Ollama installed.
-- At least one Ollama model downloaded.
-- Sufficient RAM and storage for the selected AI model.
+| Requirement | Details |
+|:---|:---|
+| **OS** | Windows, Linux, or macOS |
+| **Python** | 3.10 or later |
+| **Ollama** | Installed and running |
+| **AI Model** | At least one Ollama model downloaded |
+| **Hardware** | Sufficient RAM and storage for the selected AI model |
 
-The default model is Qwen 3 1.7B, which is suitable for lightweight local experimentation.
+> [!TIP]
+> The default model is **Qwen 3 1.7B**, which is lightweight and suitable for local experimentation on most hardware.
+
+---
 
 ## 🚀 Installation and Setup
 
-### 1. Clone the repository
+### 1️⃣ Clone the repository
 
 ```bash
 git clone https://github.com/PrudhviRaavi/Local-AI-Chatbot.git
 ```
 
-### 2. Navigate to the project directory
+### 2️⃣ Navigate to the project directory
 
 ```bash
 cd Local-AI-Chatbot
 ```
 
-### 3. Create a virtual environment
+### 3️⃣ Create a virtual environment
 
 ```bash
 python -m venv venv
 ```
 
-### 4. Activate the virtual environment
+### 4️⃣ Activate the virtual environment
 
-**Windows PowerShell:**
+<details>
+<summary><b>Windows PowerShell</b></summary>
 
 ```powershell
 venv\Scripts\Activate.ps1
 ```
 
-**Windows Command Prompt:**
+</details>
+
+<details>
+<summary><b>Windows Command Prompt</b></summary>
 
 ```cmd
 venv\Scripts\activate
 ```
 
-### 5. Install dependencies
+</details>
+
+<details>
+<summary><b>Linux / macOS</b></summary>
+
+```bash
+source venv/bin/activate
+```
+
+</details>
+
+### 5️⃣ Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 6. Install Ollama
+### 6️⃣ Install Ollama
 
-Download and install Ollama from:
+Download and install Ollama from the official site:
 
-https://ollama.com/download
+[![Download Ollama](https://img.shields.io/badge/Download-Ollama-000000?style=for-the-badge&logo=ollama&logoColor=white)](https://ollama.com/download)
 
-### 7. Download the AI model
+### 7️⃣ Download the AI model
 
 ```bash
 ollama pull qwen3:1.7b
 ```
 
-You can also download other compatible models through Ollama.
+> You can also download other compatible models through Ollama.
 
-### 8. Verify Ollama installation
+### 8️⃣ Verify Ollama installation
 
 ```bash
 ollama --version
 ```
 
-Make sure the Ollama service is running.
+> [!IMPORTANT]
+> Make sure the Ollama service is running before starting the application.
 
-### 9. Run the application
+### 9️⃣ Run the application
 
 ```bash
 streamlit run app.py
 ```
 
-The application will open in your browser, usually at:
+The application will open in your browser at: **http://localhost:8501**
 
-http://localhost:8501
+---
 
 ## 📦 Dependencies
 
@@ -177,7 +251,11 @@ Install them using:
 pip install -r requirements.txt
 ```
 
+---
+
 ## 🧠 Default AI Model
+
+<div align="center">
 
 The application is configured to use:
 
@@ -187,46 +265,63 @@ The application is configured to use:
 DEFAULT_MODEL = "qwen3:1.7b"
 ```
 
+</div>
+
 The application automatically retrieves installed Ollama models and allows you to switch between them through the sidebar.
+
+---
 
 ## 📸 Application Features
 
 The application interface includes:
 
-- Dark-themed chatbot interface.
-- Conversation history and management in the sidebar.
-- AI model selection and advanced generation settings.
-- Chat interface with copy and regenerate controls.
-- Markdown conversation export.
+- 🌙 Dark-themed chatbot interface
+- 📜 Conversation history and management in the sidebar
+- 🤖 AI model selection and advanced generation settings
+- 💬 Chat interface with copy and regenerate controls
+- 📥 Markdown conversation export
 
-*Add actual application screenshots here as the project UI evolves.*
+> *Add actual application screenshots here as the project UI evolves.*
+
+---
 
 ## 🔮 Future Enhancements
 
-Planned improvements for future versions:
+> Planned improvements for future versions:
 
-- PDF document upload and text extraction.
-- Retrieval-Augmented Generation (RAG).
-- Local document embeddings and semantic search.
-- Document-based question answering.
-- Streaming AI responses.
-- Improved conversation search.
-- Additional local AI model support.
-- Further UI refinements.
+- [ ] 📄 PDF document upload and text extraction
+- [ ] 🔍 Retrieval-Augmented Generation (RAG)
+- [ ] 📚 Local document embeddings and semantic search
+- [ ] ❓ Document-based question answering
+- [ ] ⚡ Streaming AI responses
+- [ ] 🔎 Improved conversation search
+- [ ] 🤖 Additional local AI model support
+- [ ] 🎨 Further UI refinements
+
+---
 
 ## 🔐 Privacy
 
-This project is designed for local AI experimentation.
+> [!CAUTION]
+> This project is designed for **local AI experimentation** only.
 
-The application communicates with Ollama running on your computer and stores conversation history locally. It does not require an external AI API key.
+The application communicates with Ollama running on your computer and stores conversation history locally. It does **not** require an external AI API key.
 
 Privacy also depends on the configuration of Ollama, the selected model, and any other software running on your computer.
 
+---
+
 ## 👨‍💻 Author
+
+<div align="center">
 
 **Prudhvi Raavi**
 
-- GitHub: https://github.com/PrudhviRaavi
+[![GitHub](https://img.shields.io/badge/GitHub-PrudhviRaavi-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/PrudhviRaavi)
+
+</div>
+
+---
 
 ## 📄 License
 
@@ -234,4 +329,14 @@ This project is open source. A license has not yet been specified.
 
 ---
 
-⭐ If you find this project interesting, consider giving the repository a star!
+<div align="center">
+
+⭐ **If you find this project interesting, consider giving the repository a star!** ⭐
+
+<br>
+
+![Made with ❤️](https://img.shields.io/badge/Made_with-❤️-e11d48?style=for-the-badge)
+![Runs Locally](https://img.shields.io/badge/Runs-Locally-22c55e?style=for-the-badge)
+![No API Key](https://img.shields.io/badge/No_API-Key_Required-6366f1?style=for-the-badge)
+
+</div>
